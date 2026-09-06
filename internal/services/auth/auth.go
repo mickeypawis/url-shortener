@@ -16,6 +16,7 @@ import (
 var (
 	ErrEmailExists        = repoauth.ErrEmailExists
 	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrInvalidToken       = errors.New("invalid token")
 )
 
 const tokenTTL = 24 * time.Hour
@@ -59,6 +60,19 @@ func (s *Service) Login(ctx context.Context, email, password string) (string, er
 	}
 
 	return s.issueToken(user.ID)
+}
+
+func (s *Service) ValidateToken(tokenString string) error {
+	_, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, ErrInvalidToken
+		}
+		return s.jwtSecret, nil
+	})
+	if err != nil {
+		return ErrInvalidToken
+	}
+	return nil
 }
 
 func (s *Service) issueToken(userID uint) (string, error) {

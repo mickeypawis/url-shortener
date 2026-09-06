@@ -51,8 +51,9 @@ func main() {
 	userRepo := repoauth.NewGormUserRepository(db)
 	authSvc := svcauth.NewService(userRepo, cfg.JWTSecret)
 	authHandler := apiauth.NewHandler(authSvc)
+	authMiddleware := apiauth.Middleware(authSvc)
 
-	router := api.NewRouter(handler, authHandler)
+	router := api.NewRouter(handler, authHandler, authMiddleware)
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.ServerPort,
