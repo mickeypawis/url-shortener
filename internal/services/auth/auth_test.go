@@ -114,3 +114,48 @@ func TestLoginUnknownEmail(t *testing.T) {
 		t.Fatalf("expected ErrInvalidCredentials, got %v", err)
 	}
 }
+
+func TestValidateTokenValid(t *testing.T) {
+	svc := auth.NewService(newFakeUserRepo(), "test-secret")
+	ctx := context.Background()
+
+	if _, err := svc.Register(ctx, "alice@example.com", "password123"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	tokenStr, err := svc.Login(ctx, "alice@example.com", "password123")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if err := svc.ValidateToken(tokenStr); err != nil {
+		t.Fatalf("expected valid token, got err=%v", err)
+	}
+}
+
+func TestValidateTokenInvalid(t *testing.T) {
+	svc := auth.NewService(newFakeUserRepo(), "test-secret")
+
+	err := svc.ValidateToken("not-a-token")
+	if !errors.Is(err, auth.ErrInvalidToken) {
+		t.Fatalf("expected ErrInvalidToken, got %v", err)
+	}
+}
+
+func TestValidateTokenWrongSecret(t *testing.T) {
+	svc := auth.NewService(newFakeUserRepo(), "test-secret")
+	other := auth.NewService(newFakeUserRepo(), "other-secret")
+	ctx := context.Background()
+
+	if _, err := other.Register(ctx, "alice@example.com", "password123"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	tokenStr, err := other.Login(ctx, "alice@example.com", "password123")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if err := svc.ValidateToken(tokenStr); !errors.Is(err, auth.ErrInvalidToken) {
+		t.Fatalf("expected ErrInvalidToken, got %v", err)
+	}
+}

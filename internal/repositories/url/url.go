@@ -17,6 +17,8 @@ var (
 type URLRepository interface {
 	Create(ctx context.Context, url *model.URL) error
 	FindByCode(ctx context.Context, code string) (*model.URL, error)
+	FindAll(ctx context.Context) ([]model.URL, error)
+	Delete(ctx context.Context, id uint) error
 }
 
 const pgUniqueViolationCode = "23505"
@@ -49,6 +51,25 @@ func (r *gormURLRepository) FindByCode(ctx context.Context, code string) (*model
 		return nil, err
 	}
 	return &url, nil
+}
+
+func (r *gormURLRepository) FindAll(ctx context.Context) ([]model.URL, error) {
+	var urls []model.URL
+	if err := r.db.WithContext(ctx).Find(&urls).Error; err != nil {
+		return nil, err
+	}
+	return urls, nil
+}
+
+func (r *gormURLRepository) Delete(ctx context.Context, id uint) error {
+	result := r.db.WithContext(ctx).Delete(&model.URL{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return ErrNotFound
+	}
+	return nil
 }
 
 func isUniqueViolation(err error) bool {

@@ -3,6 +3,7 @@ package url
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	service "github.com/mickeypawis/url-shortener/internal/services/url"
@@ -54,4 +55,44 @@ func (h *Handler) Redirect(c *gin.Context) {
 	}
 
 	c.Redirect(http.StatusFound, u.LongURL)
+}
+
+func (h *Handler) List(c *gin.Context) {
+	urls, err := h.svc.List(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	resp := make([]urlResponse, 0, len(urls))
+	for _, u := range urls {
+		resp = append(resp, urlResponse{
+			ID:          u.ID,
+			Code:        u.Code,
+			OriginalURL: u.LongURL,
+			ShortURL:    h.baseURL + "/" + u.Code,
+			CreatedAt:   u.CreatedAt,
+		})
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) Delete(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id must be a positive integer"})
+		return
+	}
+
+	if err := h.svc.Delete(c.Request.Context(), uint(id)); err != nil {
+		if errors.Is(err, service.ErrNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "short url not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }

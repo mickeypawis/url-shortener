@@ -57,6 +57,14 @@ func (s *URLService) Resolve(ctx context.Context, code string) (*model.URL, erro
 	return s.repo.FindByCode(ctx, code)
 }
 
+func (s *URLService) List(ctx context.Context) ([]model.URL, error) {
+	return s.repo.FindAll(ctx)
+}
+
+func (s *URLService) Delete(ctx context.Context, id uint) error {
+	return s.repo.Delete(ctx, id)
+}
+
 func isValidURL(raw string) bool {
 	u, err := url.ParseRequestURI(raw)
 	if err != nil {
