@@ -1,4 +1,4 @@
-package service_test
+package service_url_test
 
 import (
 	"context"
@@ -6,8 +6,9 @@ import (
 	"testing"
 
 	"github.com/mickeypawis/url-shortener/internal/model"
-	"github.com/mickeypawis/url-shortener/internal/repository"
-	"github.com/mickeypawis/url-shortener/internal/service"
+	repository "github.com/mickeypawis/url-shortener/internal/repositories/url"
+
+	service "github.com/mickeypawis/url-shortener/internal/services/url"
 )
 
 type fakeRepo struct {

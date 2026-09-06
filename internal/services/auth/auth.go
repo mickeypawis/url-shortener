@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	modelauth "github.com/mickeypawis/url-shortener/internal/model"
-	repoauth "github.com/mickeypawis/url-shortener/internal/repository/auth"
+	repoauth "github.com/mickeypawis/url-shortener/internal/repositories/auth"
 )
 
 var (

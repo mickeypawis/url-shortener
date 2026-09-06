@@ -5,10 +5,19 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5/pgconn"
-	"gorm.io/gorm"
-
 	"github.com/mickeypawis/url-shortener/internal/model"
+	"gorm.io/gorm"
 )
+
+var (
+	ErrNotFound   = errors.New("url not found")
+	ErrCodeExists = errors.New("code already exists")
+)
+
+type URLRepository interface {
+	Create(ctx context.Context, url *model.URL) error
+	FindByCode(ctx context.Context, code string) (*model.URL, error)
+}
 
 const pgUniqueViolationCode = "23505"
 

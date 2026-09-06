@@ -1,4 +1,4 @@
-package service
+package service_url
 
 import (
 	"context"
@@ -6,7 +6,8 @@ import (
 	"net/url"
 
 	"github.com/mickeypawis/url-shortener/internal/model"
-	"github.com/mickeypawis/url-shortener/internal/repository"
+	repository "github.com/mickeypawis/url-shortener/internal/repositories/url"
+
 	"github.com/mickeypawis/url-shortener/pkg/base62"
 )
 
