@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	svcauth "github.com/mickeypawis/url-shortener/internal/service/auth"
+	svcauth "github.com/mickeypawis/url-shortener/internal/services/auth"
 )
 
 type Handler struct {

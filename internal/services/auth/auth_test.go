@@ -8,8 +8,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 
 	modelauth "github.com/mickeypawis/url-shortener/internal/model"
-	repoauth "github.com/mickeypawis/url-shortener/internal/repository/auth"
-	"github.com/mickeypawis/url-shortener/internal/service/auth"
+	repoauth "github.com/mickeypawis/url-shortener/internal/repositories/auth"
+	"github.com/mickeypawis/url-shortener/internal/services/auth"
 )
 
 type fakeUserRepo struct {

@@ -1,12 +1,11 @@
-package api
+package url
 
 import (
 	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/mickeypawis/url-shortener/internal/service"
+	service "github.com/mickeypawis/url-shortener/internal/services/url"
 )
 
 type Handler struct {

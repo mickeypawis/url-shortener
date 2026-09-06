@@ -15,11 +15,12 @@ import (
 	"github.com/mickeypawis/url-shortener/configs"
 	"github.com/mickeypawis/url-shortener/internal/api"
 	apiauth "github.com/mickeypawis/url-shortener/internal/api/auth"
+	apiurl "github.com/mickeypawis/url-shortener/internal/api/url"
 	"github.com/mickeypawis/url-shortener/internal/model"
-	"github.com/mickeypawis/url-shortener/internal/repository"
-	repoauth "github.com/mickeypawis/url-shortener/internal/repository/auth"
-	"github.com/mickeypawis/url-shortener/internal/service"
-	svcauth "github.com/mickeypawis/url-shortener/internal/service/auth"
+	repoauth "github.com/mickeypawis/url-shortener/internal/repositories/auth"
+	repository "github.com/mickeypawis/url-shortener/internal/repositories/url"
+	svcauth "github.com/mickeypawis/url-shortener/internal/services/auth"
+	service "github.com/mickeypawis/url-shortener/internal/services/url"
 )
 
 func main() {
@@ -45,7 +46,7 @@ func main() {
 
 	repo := repository.NewGormURLRepository(db)
 	svc := service.NewURLService(repo)
-	handler := api.NewHandler(svc, cfg.BaseURL)
+	handler := apiurl.NewHandler(svc, cfg.BaseURL)
 
 	userRepo := repoauth.NewGormUserRepository(db)
 	authSvc := svcauth.NewService(userRepo, cfg.JWTSecret)
