@@ -13,6 +13,7 @@ type Config struct {
 	ServerPort  string
 	BaseURL     string
 	DatabaseDSN string
+	JWTSecret   string
 }
 
 func Load() *Config {
@@ -22,6 +23,7 @@ func Load() *Config {
 		ServerPort:  getEnv("SERVER_PORT", "8080"),
 		BaseURL:     getEnv("BASE_URL", "http://localhost:8080"),
 		DatabaseDSN: buildDSN(),
+		JWTSecret:   getEnv("JWT_SECRET", "TESTATUH"),
 	}
 }
 
