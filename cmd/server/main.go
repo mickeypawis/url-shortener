@@ -14,9 +14,12 @@ import (
 
 	"github.com/mickeypawis/url-shortener/configs"
 	"github.com/mickeypawis/url-shortener/internal/api"
+	apiauth "github.com/mickeypawis/url-shortener/internal/api/auth"
 	"github.com/mickeypawis/url-shortener/internal/model"
 	"github.com/mickeypawis/url-shortener/internal/repository"
+	repoauth "github.com/mickeypawis/url-shortener/internal/repository/auth"
 	"github.com/mickeypawis/url-shortener/internal/service"
+	svcauth "github.com/mickeypawis/url-shortener/internal/service/auth"
 )
 
 func main() {
@@ -24,13 +27,18 @@ func main() {
 
 	cfg := configs.Load()
 
+	if cfg.JWTSecret == "" {
+		slog.Error("JWT_SECRET must be set")
+		os.Exit(1)
+	}
+
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseDSN), &gorm.Config{})
 	if err != nil {
 		slog.Error("failed to connect to database", "error", err)
 		os.Exit(1)
 	}
 
-	if err := db.AutoMigrate(&model.URL{}); err != nil {
+	if err := db.AutoMigrate(&model.URL{}, &model.User{}); err != nil {
 		slog.Error("failed to run migrations", "error", err)
 		os.Exit(1)
 	}
@@ -38,7 +46,12 @@ func main() {
 	repo := repository.NewGormURLRepository(db)
 	svc := service.NewURLService(repo)
 	handler := api.NewHandler(svc, cfg.BaseURL)
-	router := api.NewRouter(handler)
+
+	userRepo := repoauth.NewGormUserRepository(db)
+	authSvc := svcauth.NewService(userRepo, cfg.JWTSecret)
+	authHandler := apiauth.NewHandler(authSvc)
+
+	router := api.NewRouter(handler, authHandler)
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.ServerPort,
