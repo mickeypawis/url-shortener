@@ -10,12 +10,14 @@ import (
 func NewRouter(h *apiurl.Handler, authH *apiauth.Handler, authMiddleware gin.HandlerFunc) *gin.Engine {
 	r := gin.Default()
 
-	r.POST("/api/shorten", h.Shorten)
-	r.POST("/api/register", authH.Register)
-	r.POST("/api/login", authH.Login)
 	r.GET("/:code", h.Redirect)
 
-	protected := r.Group("/api")
+	api := r.Group("/api")
+	api.POST("/shorten", h.Shorten)
+	api.POST("/register", authH.Register)
+	api.POST("/login", authH.Login)
+
+	protected := api.Group("")
 	protected.Use(authMiddleware)
 	protected.GET("/urls", h.List)
 	protected.DELETE("/urls/:id", h.Delete)
